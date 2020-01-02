@@ -1,12 +1,55 @@
-TEST?=$$(go list ./... |grep -v 'vendor' |grep -v 'utils')
-GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
+TEST?=$(shell go list ./... |grep -v 'vendor' |grep -v 'utils')
+GOFMT_FILES?=$(shell find . -name '*.go' |grep -v vendor)
 PKG_NAME=nutanix
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 
-default: build
+_ARCH := $(shell uname -m)
+_OS   := $(shell uname | tr '[:upper:]' '[:lower:]')
 
-build: fmtcheck
-	go install
+ifndef ARCH
+	ARCH := $(shell uname -m)
+	export ARCH
+endif
+	
+ifeq ($(ARCH),x86_64)
+	ARCH := amd64
+endif
+
+ifeq ($(_ARCH),x86_64)
+	_ARCH := amd64
+endif
+
+ifndef OS
+	OS := $(shell uname | tr '[:upper:]' '[:lower:]')
+	export OS
+endif
+
+ifdef RELEASE
+ifndef FLAGS
+	FLAGS := -ldflags "-s -w"
+endif
+endif
+
+default: dist/terraform-provider-nutanix_$(OS)_$(ARCH)
+
+build: dist/terraform-provider-nutanix_$(OS)_$(ARCH)
+
+dist/terraform-provider-nutanix_$(OS)_$(ARCH): ${GOFMT_FILES}
+ifeq ($(ARCH)$(OS),$(_ARCH)$(_OS))
+	go build -o dist/terraform-provider-nutanix_$(OS)_$(ARCH) $(FLAGS)
+else
+	CGO_ENABLED=0 GOOS=$(OS) GOARCH=$(ARCH) CC=$(CC) go build -o dist/terraform-provider-nutanix_$(OS)_$(ARCH) $(FLAGS)
+endif
+
+clean:
+	rm -rf dist/*
+
+dist:
+	mkdir -p dist/
+
+install: build
+	mkdir -p $(HOME)/.terraform.d/plugins
+	install dist/terraform-provider-nutanix_$(OS)_$(ARCH) $(HOME)/.terraform.d/plugins/terraform-provider-nutanix
 
 test: fmtcheck
 	go test $(TEST) -timeout=30s -parallel=4
@@ -86,4 +129,4 @@ endif
 
 .NOTPARALLEL:
 
-.PHONY: default build test testacc fmt fmtcheck errcheck lint tools vet test-compile cibuild citest website website-lint website-test
+.PHONY: default test testacc fmt fmtcheck errcheck lint tools vet test-compile cibuild citest website website-lint website-test archdir
