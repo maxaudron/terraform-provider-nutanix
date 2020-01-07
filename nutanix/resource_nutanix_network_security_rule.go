@@ -805,7 +805,7 @@ func resourceNutanixNetworkSecurityRuleExists(conn *v3.Client, name string) (*st
 
 	var nsrUUID *string
 
-	filter := fmt.Sprintf("network_security_rule_name==%s", name)
+	filter := fmt.Sprintf("name==%s", name)
 	networkSecurityRuleList, err := conn.V3.ListAllNetworkSecurityRule(filter)
 
 	if err != nil {
