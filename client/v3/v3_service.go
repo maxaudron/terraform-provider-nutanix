@@ -56,11 +56,11 @@ type Service interface {
 	GetVolumeGroup(uuid string) (*VolumeGroupResponse, error)
 	DeleteVolumeGroup(uuid string) error
 	CreateVolumeGroup(request *VolumeGroupInput) (*VolumeGroupResponse, error)
-	ListAllVM() (*VMListIntentResponse, error)
-	ListAllSubnet() (*SubnetListIntentResponse, error)
-	ListAllNetworkSecurityRule() (*NetworkSecurityRuleListIntentResponse, error)
-	ListAllImage() (*ImageListIntentResponse, error)
-	ListAllCluster() (*ClusterListIntentResponse, error)
+	ListAllVM(filter string) (*VMListIntentResponse, error)
+	ListAllSubnet(filter string) (*SubnetListIntentResponse, error)
+	ListAllNetworkSecurityRule(filter string) (*NetworkSecurityRuleListIntentResponse, error)
+	ListAllImage(filter string) (*ImageListIntentResponse, error)
+	ListAllCluster(filter string) (*ClusterListIntentResponse, error)
 	GetTask(taskUUID string) (*TasksResponse, error)
 }
 
@@ -844,10 +844,11 @@ func hasNext(ri *int64) bool {
 }
 
 // ListAllVM ...
-func (op Operations) ListAllVM() (*VMListIntentResponse, error) {
+func (op Operations) ListAllVM(filter string) (*VMListIntentResponse, error) {
 	entities := make([]*VMIntentResource, 0)
 
 	resp, err := op.ListVM(&DSMetadata{
+		Filter: &filter,
 		Kind:   utils.StringPtr("vm"),
 		Length: utils.Int64Ptr(itemsPerPage),
 	})
@@ -863,6 +864,7 @@ func (op Operations) ListAllVM() (*VMListIntentResponse, error) {
 	if totalEntities > itemsPerPage {
 		for hasNext(&remaining) {
 			resp, err = op.ListVM(&DSMetadata{
+				Filter: &filter,
 				Kind:   utils.StringPtr("vm"),
 				Length: utils.Int64Ptr(itemsPerPage),
 				Offset: utils.Int64Ptr(offset),
@@ -883,10 +885,11 @@ func (op Operations) ListAllVM() (*VMListIntentResponse, error) {
 }
 
 // ListAllSubnet ...
-func (op Operations) ListAllSubnet() (*SubnetListIntentResponse, error) {
+func (op Operations) ListAllSubnet(filter string) (*SubnetListIntentResponse, error) {
 	entities := make([]*SubnetIntentResponse, 0)
 
 	resp, err := op.ListSubnet(&DSMetadata{
+		Filter: &filter,
 		Kind:   utils.StringPtr("subnet"),
 		Length: utils.Int64Ptr(itemsPerPage),
 	})
@@ -902,6 +905,7 @@ func (op Operations) ListAllSubnet() (*SubnetListIntentResponse, error) {
 	if totalEntities > itemsPerPage {
 		for hasNext(&remaining) {
 			resp, err = op.ListSubnet(&DSMetadata{
+				Filter: &filter,
 				Kind:   utils.StringPtr("subnet"),
 				Length: utils.Int64Ptr(itemsPerPage),
 				Offset: utils.Int64Ptr(offset),
@@ -923,10 +927,11 @@ func (op Operations) ListAllSubnet() (*SubnetListIntentResponse, error) {
 }
 
 // ListAllNetworkSecurityRule ...
-func (op Operations) ListAllNetworkSecurityRule() (*NetworkSecurityRuleListIntentResponse, error) {
+func (op Operations) ListAllNetworkSecurityRule(filter string) (*NetworkSecurityRuleListIntentResponse, error) {
 	entities := make([]*NetworkSecurityRuleIntentResource, 0)
 
 	resp, err := op.ListNetworkSecurityRule(&DSMetadata{
+		Filter: &filter,
 		Kind:   utils.StringPtr("network_security_rule"),
 		Length: utils.Int64Ptr(itemsPerPage),
 	})
@@ -942,6 +947,7 @@ func (op Operations) ListAllNetworkSecurityRule() (*NetworkSecurityRuleListInten
 	if totalEntities > itemsPerPage {
 		for hasNext(&remaining) {
 			resp, err = op.ListNetworkSecurityRule(&DSMetadata{
+				Filter: &filter,
 				Kind:   utils.StringPtr("network_security_rule"),
 				Length: utils.Int64Ptr(itemsPerPage),
 				Offset: utils.Int64Ptr(offset),
@@ -963,10 +969,11 @@ func (op Operations) ListAllNetworkSecurityRule() (*NetworkSecurityRuleListInten
 }
 
 // ListAllImage ...
-func (op Operations) ListAllImage() (*ImageListIntentResponse, error) {
+func (op Operations) ListAllImage(filter string) (*ImageListIntentResponse, error) {
 	entities := make([]*ImageIntentResponse, 0)
 
 	resp, err := op.ListImage(&DSMetadata{
+		Filter: &filter,
 		Kind:   utils.StringPtr("image"),
 		Length: utils.Int64Ptr(itemsPerPage),
 	})
@@ -982,6 +989,7 @@ func (op Operations) ListAllImage() (*ImageListIntentResponse, error) {
 	if totalEntities > itemsPerPage {
 		for hasNext(&remaining) {
 			resp, err = op.ListImage(&DSMetadata{
+				Filter: &filter,
 				Kind:   utils.StringPtr("image"),
 				Length: utils.Int64Ptr(itemsPerPage),
 				Offset: utils.Int64Ptr(offset),
@@ -1007,6 +1015,7 @@ func (op Operations) ListAllCluster(filter string) (*ClusterListIntentResponse, 
 	entities := make([]*ClusterIntentResponse, 0)
 
 	resp, err := op.ListCluster(&DSMetadata{
+		Filter: &filter,
 		Kind:   utils.StringPtr("cluster"),
 		Length: utils.Int64Ptr(itemsPerPage),
 	})
@@ -1022,6 +1031,7 @@ func (op Operations) ListAllCluster(filter string) (*ClusterListIntentResponse, 
 	if totalEntities > itemsPerPage {
 		for hasNext(&remaining) {
 			resp, err = op.ListCluster(&DSMetadata{
+				Filter: &filter,
 				Kind:   utils.StringPtr("cluster"),
 				Length: utils.Int64Ptr(itemsPerPage),
 				Offset: utils.Int64Ptr(offset),
