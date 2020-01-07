@@ -589,7 +589,8 @@ func findClusterByUUID(conn *v3.Client, uuid string) (*v3.ClusterIntentResponse,
 }
 
 func findClusterByName(conn *v3.Client, name string) (*v3.ClusterIntentResponse, error) {
-	resp, err := conn.V3.ListAllCluster()
+	filter := fmt.Sprintf("name==%s", name)
+	resp, err := conn.V3.ListAllCluster(filter)
 	if err != nil {
 		return nil, err
 	}
