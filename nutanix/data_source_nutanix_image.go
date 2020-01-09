@@ -270,7 +270,8 @@ func findImageByUUID(conn *v3.Client, uuid string) (*v3.ImageIntentResponse, err
 }
 
 func findImageByName(conn *v3.Client, name string) (*v3.ImageIntentResponse, error) {
-	resp, err := conn.V3.ListAllImage()
+	filter := fmt.Sprintf("name==%s", name)
+	resp, err := conn.V3.ListAllImage(filter)
 	if err != nil {
 		return nil, err
 	}
@@ -293,5 +294,4 @@ func findImageByName(conn *v3.Client, name string) (*v3.ImageIntentResponse, err
 	}
 
 	return findImageByUUID(conn, *found[0].Metadata.UUID)
-
 }

@@ -480,18 +480,6 @@ func resourceNutanixNetworkSecurityRuleCreate(d *schema.ResourceData, meta inter
 		spec.Description = utils.StringPtr(desc.(string))
 	}
 
-	networkSecurityRueUUID, err := resourceNutanixNetworkSecurityRuleExists(conn, d.Get("name").(string))
-
-	if err != nil {
-		return err
-	}
-
-	if networkSecurityRueUUID != nil {
-		return fmt.Errorf(
-			"network security rule already with name %s exists in the given cluster, UUID %s",
-			d.Get("name").(string), *networkSecurityRueUUID)
-	}
-
 	// set request
 
 	spec.Resources = networkSecurityRule
@@ -506,7 +494,7 @@ func resourceNutanixNetworkSecurityRuleCreate(d *schema.ResourceData, meta inter
 	resp, err := conn.V3.CreateNetworkSecurityRule(request)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("error creating Nutanix Network Security Rule %s: %+v", utils.StringValue(spec.Name), err)
 	}
 
 	d.SetId(*resp.Metadata.UUID)
@@ -817,7 +805,8 @@ func resourceNutanixNetworkSecurityRuleExists(conn *v3.Client, name string) (*st
 
 	var nsrUUID *string
 
-	networkSecurityRuleList, err := conn.V3.ListAllNetworkSecurityRule()
+	filter := fmt.Sprintf("name==%s", name)
+	networkSecurityRuleList, err := conn.V3.ListAllNetworkSecurityRule(filter)
 
 	if err != nil {
 		return nil, err
